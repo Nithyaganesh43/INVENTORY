@@ -16,7 +16,7 @@ router.delete('/category/:id', idValidation, adminOnly, productController.delete
 
 // Product management routes
 router.post('/', productValidation, adminOnly, productController.createProduct);
-router.get('/list', productController.getProducts); // Public
+router.get('/', productController.getProducts); // Public
 router.get('/:id', idValidation, productController.getProductById); // Public
 router.put('/:id', [...idValidation, ...productValidation], adminOnly, productController.updateProduct);
 router.delete('/:id', idValidation, adminOnly, productController.deleteProduct);

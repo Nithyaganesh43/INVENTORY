@@ -201,7 +201,7 @@ exports.createProduct = async (req, res) => {
 
 /**
  * Get all products
- * @route GET /product/list
+ * @route GET /product
  * @access Public
  */
 exports.getProducts = async (req, res) => {

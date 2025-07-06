@@ -479,4 +479,53 @@ exports.getOrderStats = async (req, res) => {
       message: 'Server error while fetching order statistics'
     });
   }
+};
+
+/**
+ * Change admin password
+ * @route PATCH /admin/change-password
+ * @access Admin only
+ */
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const adminId = req.user.id;
+
+    // Get admin user
+    const admin = await User.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: 'Admin user not found'
+      });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, admin.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update password
+    admin.password = hashedNewPassword;
+    await admin.save();
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while changing password'
+    });
+  }
 }; 

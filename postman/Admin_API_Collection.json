@@ -1,0 +1,490 @@
+{
+  "info": {
+    "name": "Inventory System - Admin API",
+    "description": "Complete API collection for admin operations in the Inventory Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{adminToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('adminToken', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Branch Management",
+      "item": [
+        {
+          "name": "Create Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Branch\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/branch",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "branch"]
+            }
+          }
+        },
+        {
+          "name": "Get All Branches",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/branches",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "branches"]
+            }
+          }
+        },
+        {
+          "name": "Update Branch",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Branch Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/branch/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "branch", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Branch",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/admin/branch/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "branch", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"username\": \"johndoe\",\n  \"password\": \"password123\",\n  \"branch\": \"64f8a1b2c3d4e5f6a7b8c9d1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "user"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Smith\",\n  \"username\": \"johnsmith\",\n  \"password\": \"newpassword123\",\n  \"branch\": \"64f8a1b2c3d4e5f6a7b8c9d2\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/user/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "user", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/admin/user/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "user", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d3"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Category Management",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"Electronics\",\n  \"name\": \"Laptops\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product/category",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "category"]
+            }
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/product/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"Electronics\",\n  \"name\": \"Gaming Laptops\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product/category/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "category", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d4"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/product/category/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", "category", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d4"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product Management",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MacBook Pro\",\n  \"value\": 1299.99,\n  \"category\": \"64f8a1b2c3d4e5f6a7b8c9d4\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product",
+              "host": ["{{baseUrl}}"],
+              "path": ["product"]
+            }
+          }
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/product",
+              "host": ["{{baseUrl}}"],
+              "path": ["product"]
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MacBook Pro M2\",\n  \"value\": 1499.99,\n  \"category\": \"64f8a1b2c3d4e5f6a7b8c9d4\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d6"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/product/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["product", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d6"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order Management",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/order/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "order", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "64f8a1b2c3d4e5f6a7b8c9d7"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order Statistics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/orders/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "orders", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Profile",
+      "item": [
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"admin\",\n  \"newPassword\": \"newSecurePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "change-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 

@@ -5,7 +5,8 @@ const {
   branchValidation, 
   userValidation, 
   orderStatusValidation, 
-  idValidation 
+  idValidation,
+  passwordChangeValidation
 } = require('../middlewares/validation');
 const { adminOnly } = require('../middlewares/auth');
 
@@ -25,5 +26,8 @@ router.delete('/user/:id', idValidation, adminOnly, adminController.deleteUser);
 router.get('/orders', adminOnly, adminController.getOrders);
 router.patch('/order/:id', [...idValidation, ...orderStatusValidation], adminOnly, adminController.updateOrderStatus);
 router.get('/orders/stats', adminOnly, adminController.getOrderStats);
+
+// Admin profile routes
+router.patch('/change-password', passwordChangeValidation, adminOnly, adminController.changePassword);
 
 module.exports = router; 
