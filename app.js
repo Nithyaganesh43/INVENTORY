@@ -12,7 +12,18 @@ const productRoutes = require('./routes/product');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://invetorymanagementsystembyisai.onrender.com',
+    'http://localhost:5500',
+    'http://localhost:8080',
+    'http://localhost:8000',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
