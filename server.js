@@ -57,11 +57,41 @@ app.use((error, req, res, next) => {
   });
 });
 
+// Import bcrypt for password hashing
+const bcrypt = require('bcryptjs');
+const { User } = require('./models');
+
+// Ensure admin user exists
+const ensureAdminExists = async () => {
+  try {
+    const adminUser = await User.findOne({ username: 'admin' });
+    
+    if (!adminUser) {
+      console.log('👑 Creating admin user...');
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await User.create({
+        name: 'System Administrator',
+        username: 'admin',
+        password: hashedPassword,
+        role: 'admin'
+      });
+      console.log('✅ Admin user created: admin / admin123');
+    } else {
+      console.log('✅ Admin user already exists');
+    }
+  } catch (error) {
+    console.error('❌ Error ensuring admin exists:', error);
+  }
+};
+
 // Connect to database and start server
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ Database connected');
+    
+    // Ensure admin user exists
+    await ensureAdminExists();
     
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
