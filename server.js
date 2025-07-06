@@ -7,7 +7,6 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
-const productRoutes = require('./routes/product');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,7 +28,6 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
-app.use('/product', productRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -61,24 +59,22 @@ app.use((error, req, res, next) => {
 const bcrypt = require('bcryptjs');
 const { User } = require('./models');
 
-// Ensure admin user exists
+// Ensure only one admin exists
 const ensureAdminExists = async () => {
   try {
-    const adminUser = await User.findOne({ username: 'admin' });
+    // Delete all existing admin users first
+    await User.deleteMany({ role: 'admin' });
     
-    if (!adminUser) {
-      console.log('👑 Creating admin user...');
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-      await User.create({
-        name: 'System Administrator',
-        username: 'admin',
-        password: hashedPassword,
-        role: 'admin'
-      });
-      console.log('✅ Admin user created: admin / admin123');
-    } else {
-      console.log('✅ Admin user already exists');
-    }
+    // Create the single admin user
+    console.log('👑 Creating admin user...');
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    await User.create({
+      name: 'System Administrator',
+      username: 'admin',
+      password: hashedPassword,
+      role: 'admin'
+    });
+    console.log('✅ Admin user created: admin / admin123');
   } catch (error) {
     console.error('❌ Error ensuring admin exists:', error);
   }

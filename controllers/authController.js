@@ -71,30 +71,6 @@ const login = async (req, res) => {
   }
 };
 
-/**
- * Get current user profile
- * @route GET /auth/profile
- * @access Private
- */
-exports.getProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id)
-      .select('-password')
-      .populate('branch', 'name');
-
-    res.json({
-      success: true,
-      user
-    });
-  } catch (error) {
-    console.error('Get profile error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while fetching profile'
-    });
-  }
-};
-
 module.exports = {
   login
 }; 

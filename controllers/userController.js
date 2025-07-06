@@ -27,7 +27,7 @@ const getProducts = async (req, res) => {
 
 /**
  * Place new order
- * @route POST /user/order
+ * @route POST /user/orders
  * @access User only
  */
 const placeOrder = async (req, res) => {

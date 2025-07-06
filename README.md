@@ -1,47 +1,52 @@
 # Inventory Management System
 
-A simple inventory management system with admin and user roles.
+A simple inventory management system with admin website and user mobile app functionality.
 
 ## Features
 
-- **Admin Login**: Default credentials (admin/admin)
-- **Branch Management**: Create branches
-- **User Management**: Create users for each branch
-- **Category Management**: Create product categories
-- **Product Management**: Create products with categories
-- **Order Management**: Users can place orders, admins can manage status
+### Admin Website
+- Login with admin credentials (admin/admin123)
+- Manage branches
+- Manage users
+- Manage categories
+- Manage products
+- View and update order status
+
+### User Mobile App
+- Login with credentials provided by admin
+- View all products
+- Place orders
+- View own orders
 
 ## Setup
 
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+1. Install dependencies:
+```bash
+npm install
+```
 
-2. **Environment Setup**:
-   - Copy `env.example` to `.env`
-   - Update `MONGODB_URI` with your MongoDB connection string
-   - Update `JWT_SECRET` with a secure secret key
+2. Create `.env` file:
+```bash
+cp env.example .env
+```
 
-3. **Initialize Admin User**:
-   ```bash
-   npm run init-admin
-   ```
+3. Update `.env` with your MongoDB URI and JWT secret.
 
-4. **Start Server**:
-   ```bash
-   npm start
-   ```
+4. Start the server:
+```bash
+npm start
+```
 
 ## API Endpoints
 
 ### Authentication
 - `POST /auth/login` - Login for admin and users
 
-### Admin Routes (requires admin token)
+### Admin Routes (Admin only)
 - `POST /admin/branches` - Create branch
 - `GET /admin/branches` - Get all branches
 - `POST /admin/users` - Create user
+- `GET /admin/users` - Get all users
 - `POST /admin/categories` - Create category
 - `GET /admin/categories` - Get all categories
 - `POST /admin/products` - Create product
@@ -49,24 +54,21 @@ A simple inventory management system with admin and user roles.
 - `GET /admin/orders` - Get all orders
 - `PATCH /admin/orders/:orderId/status` - Update order status
 
-### User Routes (requires user token)
+### User Routes (User only)
 - `GET /user/products` - Get all products
 - `POST /user/orders` - Place order
 - `GET /user/orders` - Get user's orders
 
-### Public Routes
-- `GET /product` - Get all products
-- `GET /product/categories` - Get all categories
-- `GET /product/:id` - Get product by ID
-- `GET /health` - Health check
+## Database Schema
 
-## Order Status
-- `fresh` - New order
-- `pending` - Order being processed
-- `finished` - Order completed
+- **User**: name, username, password, role (admin/user), branch
+- **Branch**: name
+- **Category**: name
+- **Product**: name, value, category
+- **Order**: status, product, quantity, user, reason
 
-## Default Admin Credentials
+## Admin Credentials
 - Username: `admin`
-- Password: `admin`
+- Password: `admin123`
 
-**Important**: Change the default password after first login! 
+The admin user is automatically created when the server starts. 
