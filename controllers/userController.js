@@ -1,48 +1,88 @@
-const { Order, Product } = require('../models');
+const { Product, Order } = require('../models');
+
+/**
+ * Get all products for user to order
+ * @route GET /user/products
+ * @access User only
+ */
+const getProducts = async (req, res) => {
+  try {
+    const products = await Product.find()
+      .populate('category', 'name')
+      .sort({ name: 1 });
+
+    res.json({
+      success: true,
+      products
+    });
+
+  } catch (error) {
+    console.error('Get products error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get products'
+    });
+  }
+};
 
 /**
  * Place new order
  * @route POST /user/order
  * @access User only
  */
-exports.placeOrder = async (req, res) => {
+const placeOrder = async (req, res) => {
   try {
-    const { product, quantity, reason } = req.body;
-    const userId = req.user.id;
+    const { productId, quantity, reason } = req.body;
+    const userId = req.user.userId;
+
+    if (!productId || !quantity || !reason) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product, quantity, and reason are required'
+      });
+    }
+
+    if (quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be at least 1'
+      });
+    }
 
     // Check if product exists
-    const productDoc = await Product.findById(product);
-    if (!productDoc) {
-      return res.status(404).json({
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(400).json({
         success: false,
         message: 'Product not found'
       });
     }
 
     const order = new Order({
-      product,
+      product: productId,
       quantity,
-      reason,
       user: userId,
+      reason,
       status: 'fresh'
     });
 
     await order.save();
 
     // Populate order details
-    await order.populate('product', 'name value category');
-    await order.populate('user', 'name username');
+    await order.populate('product', 'name value');
+    await order.populate('product.category', 'name');
 
     res.status(201).json({
       success: true,
       message: 'Order placed successfully',
       order
     });
+
   } catch (error) {
     console.error('Place order error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while placing order'
+      message: 'Failed to place order'
     });
   }
 };
@@ -52,24 +92,25 @@ exports.placeOrder = async (req, res) => {
  * @route GET /user/orders
  * @access User only
  */
-exports.getOwnOrders = async (req, res) => {
+const getMyOrders = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const orders = await Order.find({ user: userId })
       .populate('product', 'name value')
-      .populate('product.category', 'type name')
+      .populate('product.category', 'name')
       .sort({ createdAt: -1 });
 
     res.json({
       success: true,
       orders
     });
+
   } catch (error) {
-    console.error('Get own orders error:', error);
+    console.error('Get my orders error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching orders'
+      message: 'Failed to get orders'
     });
   }
 };
@@ -261,4 +302,10 @@ exports.getOrderStats = async (req, res) => {
       message: 'Server error while fetching order statistics'
     });
   }
+};
+
+module.exports = {
+  getProducts,
+  placeOrder,
+  getMyOrders
 }; 

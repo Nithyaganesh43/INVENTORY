@@ -101,21 +101,47 @@
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Public Products",
+      "item": [
         {
-          "name": "Get Profile",
+          "name": "Get All Products",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/auth/profile",
+              "raw": "{{base_url}}/product",
               "host": ["{{base_url}}"],
-              "path": ["auth", "profile"]
+              "path": ["product"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/product/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["product", "{{product_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/product/categories",
+              "host": ["{{base_url}}"],
+              "path": ["product", "categories"]
             }
           },
           "response": []
@@ -160,9 +186,9 @@
               "raw": "{\n  \"name\": \"Test Branch\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/admin/branch",
+              "raw": "{{base_url}}/admin/branches",
               "host": ["{{base_url}}"],
-              "path": ["admin", "branch"]
+              "path": ["admin", "branches"]
             }
           },
           "response": []
@@ -184,50 +210,6 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "Update Branch",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Test Branch\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/admin/branch/{{branch_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "branch", "{{branch_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Branch",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/branch/{{branch_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "branch", "{{branch_id}}"]
-            }
-          },
-          "response": []
         }
       ]
     },
@@ -244,8 +226,8 @@
                   "if (pm.response.code === 201) {",
                   "    const response = pm.response.json();",
                   "    if (response.success && response.user) {",
-                  "        pm.environment.set('user_id', response.user.id);",
-                  "        console.log('User ID saved:', response.user.id);",
+                  "        pm.environment.set('user_id', response.user._id);",
+                  "        console.log('User ID saved:', response.user._id);",
                   "    }",
                   "}"
                 ]
@@ -266,26 +248,8 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Test User\",\n  \"username\": \"test.user\",\n  \"password\": \"password123\",\n  \"branch\": \"{{branch_id}}\"\n}"
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"username\": \"john.doe\",\n  \"password\": \"password123\",\n  \"branch\": \"{{branch_id}}\"\n}"
             },
-            "url": {
-              "raw": "{{base_url}}/admin/user",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "user"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Users",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
             "url": {
               "raw": "{{base_url}}/admin/users",
               "host": ["{{base_url}}"],
@@ -293,11 +257,32 @@
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Admin - Category Management",
+      "item": [
         {
-          "name": "Update User",
+          "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.category) {",
+                  "        pm.environment.set('category_id', response.category._id);",
+                  "        console.log('Category ID saved:', response.category._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "PUT",
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
@@ -310,20 +295,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Test User\",\n  \"username\": \"updated.test.user\",\n  \"password\": \"newpassword123\",\n  \"branch\": \"{{branch_id}}\"\n}"
+              "raw": "{\n  \"name\": \"Electronics\",\n  \"description\": \"Electronic devices and accessories\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/admin/user/{{user_id}}",
+              "raw": "{{base_url}}/admin/categories",
               "host": ["{{base_url}}"],
-              "path": ["admin", "user", "{{user_id}}"]
+              "path": ["admin", "categories"]
             }
           },
           "response": []
         },
         {
-          "name": "Delete User",
+          "name": "Get All Categories",
           "request": {
-            "method": "DELETE",
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
@@ -331,9 +316,74 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/admin/user/{{user_id}}",
+              "raw": "{{base_url}}/admin/categories",
               "host": ["{{base_url}}"],
-              "path": ["admin", "user", "{{user_id}}"]
+              "path": ["admin", "categories"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin - Product Management",
+      "item": [
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.product) {",
+                  "        pm.environment.set('product_id', response.product._id);",
+                  "        console.log('Product ID saved:', response.product._id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Laptop\",\n  \"description\": \"High-performance laptop\",\n  \"price\": 999.99,\n  \"category\": \"{{category_id}}\",\n  \"stock\": 50,\n  \"branch\": \"{{branch_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/products",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/products",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "products"]
             }
           },
           "response": []
@@ -377,30 +427,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"pending\"\n}"
+              "raw": "{\n  \"status\": \"completed\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/admin/order/{{order_id}}",
+              "raw": "{{base_url}}/admin/orders/{{order_id}}/status",
               "host": ["{{base_url}}"],
-              "path": ["admin", "order", "{{order_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Order Statistics",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/admin/orders/stats",
-              "host": ["{{base_url}}"],
-              "path": ["admin", "orders", "stats"]
+              "path": ["admin", "orders", "{{order_id}}", "status"]
             }
           },
           "response": []
@@ -408,215 +440,22 @@
       ]
     },
     {
-      "name": "Product Management",
+      "name": "User - Products",
       "item": [
         {
-          "name": "Create Category",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.success && response.category) {",
-                  "        pm.environment.set('category_id', response.category._id);",
-                  "        console.log('Category ID saved:', response.category._id);",
-                  "    }",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"Electronics\",\n  \"name\": \"Laptops\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/product/category",
-              "host": ["{{base_url}}"],
-              "path": ["product", "category"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Categories",
+          "name": "Get Products",
           "request": {
             "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/product/categories",
-              "host": ["{{base_url}}"],
-              "path": ["product", "categories"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Category",
-          "request": {
-            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"type\": \"Electronics\",\n  \"name\": \"Updated Laptops\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/product/category/{{category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["product", "category", "{{category_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Category",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{user_token}}"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/product/category/{{category_id}}",
+              "raw": "{{base_url}}/user/products",
               "host": ["{{base_url}}"],
-              "path": ["product", "category", "{{category_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Product",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.success && response.product) {",
-                  "        pm.environment.set('product_id', response.product._id);",
-                  "        console.log('Product ID saved:', response.product._id);",
-                  "    }",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Dell XPS 13 Laptop\",\n  \"value\": 1200,\n  \"category\": \"{{category_id}}\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/product",
-              "host": ["{{base_url}}"],
-              "path": ["product"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Products",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/product/list",
-              "host": ["{{base_url}}"],
-              "path": ["product", "list"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Product by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/product/{{product_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["product", "{{product_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Product",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Dell XPS 13 Laptop\",\n  \"value\": 1300,\n  \"category\": \"{{category_id}}\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/product/{{product_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["product", "{{product_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Product",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/product/{{product_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["product", "{{product_id}}"]
+              "path": ["user", "products"]
             }
           },
           "response": []
@@ -624,7 +463,7 @@
       ]
     },
     {
-      "name": "User - Order Management",
+      "name": "User - Orders",
       "item": [
         {
           "name": "Place Order",
@@ -658,18 +497,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"product\": \"{{product_id}}\",\n  \"quantity\": 2,\n  \"reason\": \"Office supplies needed for new project\"\n}"
+              "raw": "{\n  \"items\": [\n    {\n      \"product\": \"{{product_id}}\",\n      \"quantity\": 2\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "{{base_url}}/user/order",
+              "raw": "{{base_url}}/user/orders",
               "host": ["{{base_url}}"],
-              "path": ["user", "order"]
+              "path": ["user", "orders"]
             }
           },
           "response": []
         },
         {
-          "name": "Get Own Orders",
+          "name": "Get My Orders",
           "request": {
             "method": "GET",
             "header": [
@@ -682,86 +521,6 @@
               "raw": "{{base_url}}/user/orders",
               "host": ["{{base_url}}"],
               "path": ["user", "orders"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Order by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{user_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/user/order/{{order_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["user", "order", "{{order_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Order",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{user_token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"quantity\": 3,\n  \"reason\": \"Updated reason - urgent requirement\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/user/order/{{order_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["user", "order", "{{order_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Cancel Order",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{user_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/user/order/{{order_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["user", "order", "{{order_id}}"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get User Order Statistics",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{user_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/user/orders/stats",
-              "host": ["{{base_url}}"],
-              "path": ["user", "orders", "stats"]
             }
           },
           "response": []

@@ -1,32 +1,76 @@
-const { app, connectDB } = require('./app');
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
+// Import routes
+const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
+const userRoutes = require('./routes/user');
+const productRoutes = require('./routes/product');
+
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Start server only after database connection
+// Middleware
+app.use(cors({
+  origin: [
+    'https://inventory-management-isaii.vercel.app',
+    'http://localhost:3000', // For local development
+    'http://localhost:3001'  // Alternative local port
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
+}));
+app.use(express.json());
+
+// Routes
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/user', userRoutes);
+app.use('/product', productRoutes);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Inventory System API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Global error handler
+app.use((error, req, res, next) => {
+  console.error('Error:', error);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error'
+  });
+});
+
+// Connect to database and start server
 const startServer = async () => {
   try {
-    // Connect to database first
-    const dbConnected = await connectDB();
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ Database connected');
     
-    if (!dbConnected) {
-      console.error('❌ Failed to connect to database. Server will not start.');
-      process.exit(1);
-    }
-
-    // Start server after successful database connection
     app.listen(PORT, () => {
-      console.log(`🚀 Inventory System API server is running on port ${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
-      console.log(`🔗 API Base URL: http://localhost:${PORT}`);
-      console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🗄️  Database: Connected to MongoDB Atlas`);
     });
-
   } catch (error) {
-    console.error('❌ Server startup failed:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 };
 
-// Start the server
 startServer(); 

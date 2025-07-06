@@ -7,7 +7,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000",
+      "value": "https://invetorymanagementsystembyisai.onrender.com",
       "type": "string"
     },
     {
@@ -42,7 +42,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
@@ -57,7 +57,10 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
-                  "    pm.collectionVariables.set('adminToken', response.token);",
+                  "    if (response.success && response.token) {",
+                  "        pm.collectionVariables.set('adminToken', response.token);",
+                  "        console.log('Admin token saved:', response.token);",
+                  "    }",
                   "}"
                 ]
               }
@@ -84,9 +87,9 @@
               "raw": "{\n  \"name\": \"Main Branch\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/admin/branch",
+              "raw": "{{baseUrl}}/admin/branches",
               "host": ["{{baseUrl}}"],
-              "path": ["admin", "branch"]
+              "path": ["admin", "branches"]
             }
           }
         },
@@ -165,9 +168,9 @@
               "raw": "{\n  \"name\": \"John Doe\",\n  \"username\": \"johndoe\",\n  \"password\": \"password123\",\n  \"branch\": \"64f8a1b2c3d4e5f6a7b8c9d1\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/admin/user",
+              "raw": "{{baseUrl}}/admin/users",
               "host": ["{{baseUrl}}"],
-              "path": ["admin", "user"]
+              "path": ["admin", "users"]
             }
           }
         },
@@ -243,12 +246,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"Electronics\",\n  \"name\": \"Laptops\"\n}"
+              "raw": "{\n  \"name\": \"Electronics\",\n  \"description\": \"Electronic devices and accessories\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/product/category",
+              "raw": "{{baseUrl}}/admin/categories",
               "host": ["{{baseUrl}}"],
-              "path": ["product", "category"]
+              "path": ["admin", "categories"]
             }
           }
         },
@@ -257,9 +260,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/product/categories",
+              "raw": "{{baseUrl}}/admin/categories",
               "host": ["{{baseUrl}}"],
-              "path": ["product", "categories"]
+              "path": ["admin", "categories"]
             }
           }
         },
@@ -324,12 +327,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"MacBook Pro\",\n  \"value\": 1299.99,\n  \"category\": \"64f8a1b2c3d4e5f6a7b8c9d4\"\n}"
+              "raw": "{\n  \"name\": \"Laptop\",\n  \"description\": \"High-performance laptop\",\n  \"price\": 999.99,\n  \"category\": \"64f8a1b2c3d4e5f6a7b8c9d2\",\n  \"stock\": 50,\n  \"branch\": \"64f8a1b2c3d4e5f6a7b8c9d1\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/product",
+              "raw": "{{baseUrl}}/admin/products",
               "host": ["{{baseUrl}}"],
-              "path": ["product"]
+              "path": ["admin", "products"]
             }
           }
         },
@@ -338,9 +341,9 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/product",
+              "raw": "{{baseUrl}}/admin/products",
               "host": ["{{baseUrl}}"],
-              "path": ["product"]
+              "path": ["admin", "products"]
             }
           }
         },
@@ -419,15 +422,9 @@
               "raw": "{\n  \"status\": \"completed\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/admin/order/:id",
+              "raw": "{{baseUrl}}/admin/orders/64f8a1b2c3d4e5f6a7b8c9d3/status",
               "host": ["{{baseUrl}}"],
-              "path": ["admin", "order", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "64f8a1b2c3d4e5f6a7b8c9d7"
-                }
-              ]
+              "path": ["admin", "orders", "64f8a1b2c3d4e5f6a7b8c9d3", "status"]
             }
           }
         },

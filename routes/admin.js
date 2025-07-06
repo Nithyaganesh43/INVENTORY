@@ -1,33 +1,39 @@
 const express = require('express');
-const router = express.Router();
-const adminController = require('../controllers/adminController');
 const { 
-  branchValidation, 
-  userValidation, 
-  orderStatusValidation, 
-  idValidation,
-  passwordChangeValidation
-} = require('../middlewares/validation');
-const { adminOnly } = require('../middlewares/auth');
+  createBranch, 
+  createUser, 
+  createCategory, 
+  createProduct, 
+  getAllOrders, 
+  updateOrderStatus,
+  getBranches,
+  getCategories,
+  getProducts
+} = require('../controllers/adminController');
+const { authenticated, adminOnly } = require('../middlewares/auth');
 
-// Branch management routes
-router.post('/branch', branchValidation, adminOnly, adminController.createBranch);
-router.get('/branches', adminOnly, adminController.getBranches);
-router.put('/branch/:id', [...idValidation, ...branchValidation], adminOnly, adminController.updateBranch);
-router.delete('/branch/:id', idValidation, adminOnly, adminController.deleteBranch);
+const router = express.Router();
 
-// User management routes
-router.post('/user', userValidation, adminOnly, adminController.createUser);
-router.get('/users', adminOnly, adminController.getUsers);
-router.put('/user/:id', [...idValidation, ...userValidation], adminOnly, adminController.updateUser);
-router.delete('/user/:id', idValidation, adminOnly, adminController.deleteUser);
+// Apply admin authentication to all routes
+router.use(authenticated, adminOnly);
 
-// Order management routes
-router.get('/orders', adminOnly, adminController.getOrders);
-router.patch('/order/:id', [...idValidation, ...orderStatusValidation], adminOnly, adminController.updateOrderStatus);
-router.get('/orders/stats', adminOnly, adminController.getOrderStats);
+// Branch management
+router.post('/branches', createBranch);
+router.get('/branches', getBranches);
 
-// Admin profile routes
-router.patch('/change-password', passwordChangeValidation, adminOnly, adminController.changePassword);
+// User management
+router.post('/users', createUser);
+
+// Category management
+router.post('/categories', createCategory);
+router.get('/categories', getCategories);
+
+// Product management
+router.post('/products', createProduct);
+router.get('/products', getProducts);
+
+// Order management
+router.get('/orders', getAllOrders);
+router.patch('/orders/:orderId/status', updateOrderStatus);
 
 module.exports = router; 

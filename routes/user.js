@@ -1,18 +1,17 @@
 const express = require('express');
-const router = express.Router();
-const userController = require('../controllers/userController');
-const { 
-  orderValidation, 
-  idValidation 
-} = require('../middlewares/validation');
-const { userOnly } = require('../middlewares/auth');
+const { getProducts, placeOrder, getMyOrders } = require('../controllers/userController');
+const { authenticated, userOnly } = require('../middlewares/auth');
 
-// Order management routes (user's own orders only)
-router.post('/order', orderValidation, userOnly, userController.placeOrder);
-router.get('/orders', userOnly, userController.getOwnOrders);
-router.get('/order/:id', idValidation, userOnly, userController.getOrderById);
-router.put('/order/:id', [...idValidation, ...orderValidation], userOnly, userController.updateOrder);
-router.delete('/order/:id', idValidation, userOnly, userController.cancelOrder);
-router.get('/orders/stats', userOnly, userController.getOrderStats);
+const router = express.Router();
+
+// Apply user authentication to all routes
+router.use(authenticated, userOnly);
+
+// Product routes
+router.get('/products', getProducts);
+
+// Order routes
+router.post('/orders', placeOrder);
+router.get('/orders', getMyOrders);
 
 module.exports = router; 

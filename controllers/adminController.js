@@ -1,21 +1,19 @@
 const bcrypt = require('bcryptjs');
-const { User, Branch, Order, ORDER_STATUSES } = require('../models');
+const { User, Branch, Category, Product, Order } = require('../models');
 
 /**
  * Create new branch
  * @route POST /admin/branch
  * @access Admin only
  */
-exports.createBranch = async (req, res) => {
+const createBranch = async (req, res) => {
   try {
     const { name } = req.body;
 
-    // Check if branch already exists
-    const existingBranch = await Branch.findOne({ name });
-    if (existingBranch) {
+    if (!name) {
       return res.status(400).json({
         success: false,
-        message: 'Branch with this name already exists'
+        message: 'Branch name is required'
       });
     }
 
@@ -27,11 +25,19 @@ exports.createBranch = async (req, res) => {
       message: 'Branch created successfully',
       branch
     });
+
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Branch name already exists'
+      });
+    }
+    
     console.error('Create branch error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while creating branch'
+      message: 'Failed to create branch'
     });
   }
 };
@@ -41,10 +47,9 @@ exports.createBranch = async (req, res) => {
  * @route GET /admin/branches
  * @access Admin only
  */
-exports.getBranches = async (req, res) => {
+const getBranches = async (req, res) => {
   try {
     const branches = await Branch.find().sort({ name: 1 });
-    
     res.json({
       success: true,
       branches
@@ -53,7 +58,7 @@ exports.getBranches = async (req, res) => {
     console.error('Get branches error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching branches'
+      message: 'Failed to get branches'
     });
   }
 };
@@ -63,7 +68,7 @@ exports.getBranches = async (req, res) => {
  * @route PUT /admin/branch/:id
  * @access Admin only
  */
-exports.updateBranch = async (req, res) => {
+const updateBranch = async (req, res) => {
   try {
     const { name } = req.body;
     const { id } = req.params;
@@ -110,7 +115,7 @@ exports.updateBranch = async (req, res) => {
  * @route DELETE /admin/branch/:id
  * @access Admin only
  */
-exports.deleteBranch = async (req, res) => {
+const deleteBranch = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -152,22 +157,20 @@ exports.deleteBranch = async (req, res) => {
  * @route POST /admin/user
  * @access Admin only
  */
-exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
-    const { name, username, password, branch } = req.body;
+    const { name, username, password, branchId } = req.body;
 
-    // Check if username already exists
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
+    if (!name || !username || !password || !branchId) {
       return res.status(400).json({
         success: false,
-        message: 'Username already exists'
+        message: 'Name, username, password, and branch are required'
       });
     }
 
     // Check if branch exists
-    const branchDoc = await Branch.findById(branch);
-    if (!branchDoc) {
+    const branch = await Branch.findById(branchId);
+    if (!branch) {
       return res.status(400).json({
         success: false,
         message: 'Branch not found'
@@ -183,30 +186,34 @@ exports.createUser = async (req, res) => {
       username,
       password: hashedPassword,
       role: 'user',
-      branch
+      branch: branchId
     });
 
     await user.save();
 
-    // Return user without password
-    const userResponse = {
-      id: user._id,
-      name: user.name,
-      username: user.username,
-      role: user.role,
-      branch: user.branch
-    };
-
     res.status(201).json({
       success: true,
       message: 'User created successfully',
-      user: userResponse
+      user: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        branch: branch.name
+      }
     });
+
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username already exists'
+      });
+    }
+    
     console.error('Create user error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while creating user'
+      message: 'Failed to create user'
     });
   }
 };
@@ -216,7 +223,7 @@ exports.createUser = async (req, res) => {
  * @route GET /admin/users
  * @access Admin only
  */
-exports.getUsers = async (req, res) => {
+const getUsers = async (req, res) => {
   try {
     const users = await User.find()
       .select('-password')
@@ -241,7 +248,7 @@ exports.getUsers = async (req, res) => {
  * @route PUT /admin/user/:id
  * @access Admin only
  */
-exports.updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const { name, username, password, branch } = req.body;
     const { id } = req.params;
@@ -318,7 +325,7 @@ exports.updateUser = async (req, res) => {
  * @route DELETE /admin/user/:id
  * @access Admin only
  */
-exports.deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -360,29 +367,24 @@ exports.deleteUser = async (req, res) => {
  * @route GET /admin/orders
  * @access Admin only
  */
-exports.getOrders = async (req, res) => {
+const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate('user', 'name username')
       .populate('product', 'name value')
-      .populate({
-        path: 'user',
-        populate: {
-          path: 'branch',
-          select: 'name'
-        }
-      })
+      .populate('user.branch', 'name')
       .sort({ createdAt: -1 });
 
     res.json({
       success: true,
       orders
     });
+
   } catch (error) {
     console.error('Get orders error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching orders'
+      message: 'Failed to get orders'
     });
   }
 };
@@ -392,13 +394,25 @@ exports.getOrders = async (req, res) => {
  * @route PATCH /admin/order/:id
  * @access Admin only
  */
-exports.updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res) => {
   try {
+    const { orderId } = req.params;
     const { status } = req.body;
-    const { id } = req.params;
 
-    // Check if order exists
-    const order = await Order.findById(id);
+    if (!status || !['fresh', 'pending', 'finished'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid status is required (fresh, pending, finished)'
+      });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    ).populate('user', 'name username')
+     .populate('product', 'name value');
+
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -406,31 +420,17 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    // Update status
-    order.status = status;
-    await order.save();
-
-    // Populate order details
-    await order.populate('user', 'name username');
-    await order.populate('product', 'name value');
-    await order.populate({
-      path: 'user',
-      populate: {
-        path: 'branch',
-        select: 'name'
-      }
-    });
-
     res.json({
       success: true,
       message: 'Order status updated successfully',
       order
     });
+
   } catch (error) {
     console.error('Update order status error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while updating order status'
+      message: 'Failed to update order status'
     });
   }
 };
@@ -440,7 +440,7 @@ exports.updateOrderStatus = async (req, res) => {
  * @route GET /admin/orders/stats
  * @access Admin only
  */
-exports.getOrderStats = async (req, res) => {
+const getOrderStats = async (req, res) => {
   try {
     const stats = await Order.aggregate([
       {
@@ -486,7 +486,7 @@ exports.getOrderStats = async (req, res) => {
  * @route PATCH /admin/change-password
  * @access Admin only
  */
-exports.changePassword = async (req, res) => {
+const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const adminId = req.user.id;
@@ -528,4 +528,132 @@ exports.changePassword = async (req, res) => {
       message: 'Server error while changing password'
     });
   }
+};
+
+// Create category
+const createCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category name is required'
+      });
+    }
+
+    const category = new Category({ name });
+    await category.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Category created successfully',
+      category
+    });
+
+  } catch (error) {
+    console.error('Create category error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create category'
+    });
+  }
+};
+
+// Create product
+const createProduct = async (req, res) => {
+  try {
+    const { name, value, categoryId } = req.body;
+
+    if (!name || !value || !categoryId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, value, and category are required'
+      });
+    }
+
+    // Check if category exists
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    const product = new Product({
+      name,
+      value,
+      category: categoryId
+    });
+
+    await product.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      product: {
+        id: product._id,
+        name: product.name,
+        value: product.value,
+        category: category.name
+      }
+    });
+
+  } catch (error) {
+    console.error('Create product error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create product'
+    });
+  }
+};
+
+// Get all categories
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    res.json({
+      success: true,
+      categories
+    });
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get categories'
+    });
+  }
+};
+
+// Get all products
+const getProducts = async (req, res) => {
+  try {
+    const products = await Product.find()
+      .populate('category', 'name')
+      .sort({ name: 1 });
+
+    res.json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    console.error('Get products error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get products'
+    });
+  }
+};
+
+module.exports = {
+  createBranch,
+  createUser,
+  createCategory,
+  createProduct,
+  getAllOrders,
+  updateOrderStatus,
+  getBranches,
+  getCategories,
+  getProducts
 }; 

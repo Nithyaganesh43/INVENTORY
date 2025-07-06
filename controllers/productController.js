@@ -199,41 +199,34 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-/**
- * Get all products
- * @route GET /product
- * @access Public
- */
-exports.getProducts = async (req, res) => {
+// Get all products
+const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find()
-      .populate('category', 'type name')
+      .populate('category', 'name')
       .sort({ name: 1 });
 
     res.json({
       success: true,
       products
     });
+
   } catch (error) {
     console.error('Get products error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching products'
+      message: 'Failed to get products'
     });
   }
 };
 
-/**
- * Get product by ID
- * @route GET /product/:id
- * @access Public
- */
-exports.getProductById = async (req, res) => {
+// Get product by ID
+const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const product = await Product.findById(id)
-      .populate('category', 'type name');
+      .populate('category', 'name');
 
     if (!product) {
       return res.status(404).json({
@@ -246,11 +239,12 @@ exports.getProductById = async (req, res) => {
       success: true,
       product
     });
+
   } catch (error) {
-    console.error('Get product by ID error:', error);
+    console.error('Get product error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error while fetching product'
+      message: 'Failed to get product'
     });
   }
 };
@@ -360,4 +354,29 @@ exports.deleteProduct = async (req, res) => {
       message: 'Server error while deleting product'
     });
   }
+};
+
+// Get all categories
+const getAllCategories = async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+
+    res.json({
+      success: true,
+      categories
+    });
+
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get categories'
+    });
+  }
+};
+
+module.exports = {
+  getAllProducts,
+  getProductById,
+  getAllCategories
 }; 

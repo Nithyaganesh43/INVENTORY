@@ -1,67 +1,72 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { User, Branch } = require('../models');
+const jwt = require('jsonwebtoken');
+const { User } = require('../models');
 
 /**
- * Login user/admin
+ * Login for both admin and users
  * @route POST /auth/login
  * @access Public
  */
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Find user by username
-    const user = await User.findOne({ username }).populate('branch', 'name');
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username and password are required'
+      });
+    }
 
+    // Find user by username
+    const user = await User.findOne({ username }).populate('branch');
+    
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid username or password'
+        message: 'Invalid credentials'
       });
     }
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid username or password'
+        message: 'Invalid credentials'
       });
     }
 
     // Generate JWT token
     const token = jwt.sign(
       { 
-        id: user._id, 
-        role: user.role,
-        branch: user.branch?._id
-      }, 
+        userId: user._id, 
+        username: user.username, 
+        role: user.role 
+      },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
-
-    // Return user data (excluding password)
-    const userResponse = {
-      id: user._id,
-      name: user.name,
-      username: user.username,
-      role: user.role,
-      branch: user.branch
-    };
 
     res.json({
       success: true,
       message: 'Login successful',
       token,
-      user: userResponse
+      user: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        role: user.role,
+        branch: user.branch
+      }
     });
 
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error during login'
+      message: 'Login failed'
     });
   }
 };
@@ -88,4 +93,8 @@ exports.getProfile = async (req, res) => {
       message: 'Server error while fetching profile'
     });
   }
+};
+
+module.exports = {
+  login
 }; 

@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 
-// Enums
-const ORDER_STATUSES = ['fresh', 'pending', 'completed', 'rejected'];
-
 // User Schema
 const userSchema = new mongoose.Schema({
   name: { 
@@ -49,11 +46,6 @@ const branchSchema = new mongoose.Schema({
 
 // Category Schema
 const categorySchema = new mongoose.Schema({
-  type: { 
-    type: String, 
-    required: true,
-    trim: true
-  },
   name: { 
     type: String, 
     required: true,
@@ -88,7 +80,7 @@ const productSchema = new mongoose.Schema({
 const orderSchema = new mongoose.Schema({
   status: { 
     type: String, 
-    enum: ORDER_STATUSES, 
+    enum: ['fresh', 'pending', 'finished'], 
     default: 'fresh' 
   },
   product: { 
@@ -110,10 +102,6 @@ const orderSchema = new mongoose.Schema({
     type: String, 
     required: true,
     trim: true
-  },
-  time: { 
-    type: Date, 
-    default: Date.now 
   }
 }, {
   timestamps: true
@@ -131,6 +119,5 @@ module.exports = {
   Branch, 
   Category, 
   Product, 
-  Order,
-  ORDER_STATUSES 
+  Order
 }; 
