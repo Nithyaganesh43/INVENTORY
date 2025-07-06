@@ -16,7 +16,7 @@ app.use(cors({
   origin: [
     'https://inventory-management-isaii.vercel.app',
     'http://localhost:3000', // For local development
-    'http://localhost:3001'  // Alternative local port
+    'http://localhost:3001' ,'*' // Alternative local port
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
